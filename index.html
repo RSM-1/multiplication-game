@@ -3,70 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multiplication Master</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="styles.css">
+    <title>Multiplication Game</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #operationButtons { margin: 20px 0; }
+        #result { font-weight: bold; }
+    </style>
 </head>
-<body class="min-h-screen flex flex-col items-center py-8 px-4">
-
-    <!-- Main Game Container -->
-    <div id="game-container" class="w-full max-w-lg bg-white rounded-3xl p-8 card-shadow border-4 border-slate-800 text-center transition-all duration-300">
-        
-        <!-- Scoreboard -->
-        <div class="flex justify-between mb-8 gap-4">
-            <div class="flex-1 bg-green-100 border-b-4 border-green-500 rounded-2xl p-4">
-                <p class="text-green-700 uppercase text-xs font-black tracking-widest">Correct</p>
-                <p id="score-correct" class="text-4xl bungee text-green-600">0</p>
-            </div>
-            <div class="flex-1 bg-red-100 border-b-4 border-red-500 rounded-2xl p-4">
-                <p class="text-red-700 uppercase text-xs font-black tracking-widest">Incorrect</p>
-                <p id="score-incorrect" class="text-4xl bungee text-red-600">0</p>
-            </div>
-        </div>
-
-        <!-- Question Section -->
-        <div id="question-area">
-            <h2 class="text-slate-400 uppercase font-black tracking-tighter mb-2">Calculate:</h2>
-            <div class="flex justify-center items-center gap-4 mb-8">
-                <span id="num1" class="text-7xl md:text-8xl bungee text-indigo-600">7</span>
-                <span class="text-5xl bungee text-slate-300">×</span>
-                <span id="num2" class="text-7xl md:text-8xl bungee text-indigo-600">8</span>
-            </div>
-
-            <div id="input-container" class="space-y-4">
-                <input type="number" id="answer-input" placeholder="?" 
-                       class="w-full text-center text-6xl bungee py-6 bg-slate-50 border-4 border-slate-200 rounded-2xl text-slate-800"
-                       inputmode="numeric">
-                
-                <button id="submit-btn" 
-                        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-3xl bungee py-6 rounded-2xl border-b-8 border-indigo-900 btn-bounce transition-colors">
-                    SUBMIT!
-                </button>
-            </div>
-        </div>
-
-        <!-- Result Section -->
-        <div id="result-area" class="hidden space-y-6 py-4">
-            <div id="feedback-icon" class="text-8xl mb-4">🎉</div>
-            <h2 id="feedback-text" class="text-4xl bungee mb-2">CORRECT!</h2>
-            <p id="feedback-subtext" class="text-2xl font-bold text-slate-600 mb-6">7 × 8 = 56</p>
-            
-            <button id="next-btn" 
-                    class="w-full bg-slate-800 hover:bg-slate-900 text-white text-3xl bungee py-6 rounded-2xl border-b-8 border-slate-950 btn-bounce transition-colors">
-                NEXT QUESTION
-            </button>
-        </div>
+<body>
+    <h1>Multiplication Game</h1>
+    <div id="operationButtons">
+        <button onclick="setOperation('+')">Addition</button>
+        <button onclick="setOperation('-')">Subtraction</button>
+        <button onclick="setOperation('*')">Multiplication</button>
+    </div>
+    <div id="gameDisplay">
+        <p id="operationSymbol">Operation: <span id="selectedOperation">+</span></p>
+        <p id="question"></p>
+        <input type="text" id="answer">
+        <button onclick="checkAnswer()">Submit</button>
+        <p id="result"></p>
     </div>
 
-    <!-- History Log Section -->
-    <div class="w-full max-w-lg mt-12 mb-8">
-        <h3 class="text-2xl bungee text-slate-400 mb-4 text-center">Past Responses</h3>
-        <div id="history-list" class="space-y-3 max-h-80 overflow-y-auto pr-2 custom-scroll">
-            <!-- History items will be injected here -->
-            <div class="text-center text-slate-400 py-8 italic font-bold">No history yet. Start playing!</div>
-        </div>
-    </div>
+    <script>
+        let currentOperation = '+';
 
-    <script src="script.js"></script>
+        function setOperation(operation) {
+            currentOperation = operation;
+            document.getElementById('selectedOperation').innerText = operation;
+            // Logic to update game with new operation can go here
+        }
+
+        function checkAnswer() {
+            // Logic to check answer can go here
+        }
+    </script>
 </body>
 </html>
