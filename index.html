@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplication Master</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bungee&family=Roboto:wght@700;900&display=swap');
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f4f8;
+            touch-action: manipulation;
+        }
+
+        .bungee {
+            font-family: 'Bungee', cursive;
+        }
+
+        .card-shadow {
+            box-shadow: 0 10px 0px 0px rgba(0,0,0,0.1);
+        }
+
+        .btn-bounce:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        #answer-input:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.3);
+        }
+
+        /* Custom scrollbar for history */
+        .custom-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #e2e8f0;
+            border-radius: 10px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 10px;
+        }
+
+        @media screen and (max-width: 768px) {
+            input { font-size: 16px !important; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center py-8 px-4">
+
+    <!-- Main Game Container -->
+    <div id="game-container" class="w-full max-w-lg bg-white rounded-3xl p-8 card-shadow border-4 border-slate-800 text-center transition-all duration-300">
+        
+        <!-- Scoreboard -->
+        <div class="flex justify-between mb-8 gap-4">
+            <div class="flex-1 bg-green-100 border-b-4 border-green-500 rounded-2xl p-4">
+                <p class="text-green-700 uppercase text-xs font-black tracking-widest">Correct</p>
+                <p id="score-correct" class="text-4xl bungee text-green-600">0</p>
+            </div>
+            <div class="flex-1 bg-red-100 border-b-4 border-red-500 rounded-2xl p-4">
+                <p class="text-red-700 uppercase text-xs font-black tracking-widest">Incorrect</p>
+                <p id="score-incorrect" class="text-4xl bungee text-red-600">0</p>
+            </div>
+        </div>
+
+        <!-- Question Section -->
+        <div id="question-area">
+            <h2 class="text-slate-400 uppercase font-black tracking-tighter mb-2">Calculate:</h2>
+            <div class="flex justify-center items-center gap-4 mb-8">
+                <span id="num1" class="text-7xl md:text-8xl bungee text-indigo-600">7</span>
+                <span class="text-5xl bungee text-slate-300">×</span>
+                <span id="num2" class="text-7xl md:text-8xl bungee text-indigo-600">8</span>
+            </div>
+
+            <div id="input-container" class="space-y-4">
+                <input type="number" id="answer-input" placeholder="?" 
+                       class="w-full text-center text-6xl bungee py-6 bg-slate-50 border-4 border-slate-200 rounded-2xl text-slate-800"
+                       inputmode="numeric">
+                
+                <button id="submit-btn" 
+                        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-3xl bungee py-6 rounded-2xl border-b-8 border-indigo-900 btn-bounce transition-colors">
+                    SUBMIT!
+                </button>
+            </div>
+        </div>
+
+        <!-- Result Section -->
+        <div id="result-area" class="hidden space-y-6 py-4">
+            <div id="feedback-icon" class="text-8xl mb-4">🎉</div>
+            <h2 id="feedback-text" class="text-4xl bungee mb-2">CORRECT!</h2>
+            <p id="feedback-subtext" class="text-2xl font-bold text-slate-600 mb-6">7 × 8 = 56</p>
+            
+            <button id="next-btn" 
+                    class="w-full bg-slate-800 hover:bg-slate-900 text-white text-3xl bungee py-6 rounded-2xl border-b-8 border-slate-950 btn-bounce transition-colors">
+                NEXT QUESTION
+            </button>
+        </div>
+    </div>
+
+    <!-- History Log Section -->
+    <div class="w-full max-w-lg mt-12 mb-8">
+        <h3 class="text-2xl bungee text-slate-400 mb-4 text-center">Past Responses</h3>
+        <div id="history-list" class="space-y-3 max-h-80 overflow-y-auto pr-2 custom-scroll">
+            <!-- History items will be injected here -->
+            <div class="text-center text-slate-400 py-8 italic font-bold">No history yet. Start playing!</div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let currentNum1 = 0;
+        let currentNum2 = 0;
+        let currentAnswer = 0;
+        let history = [];
+
+        // Elements
+        const num1El = document.getElementById('num1');
+        const num2El = document.getElementById('num2');
+        const inputEl = document.getElementById('answer-input');
+        const submitBtn = document.getElementById('submit-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const scoreCorrectEl = document.getElementById('score-correct');
+        const scoreIncorrectEl = document.getElementById('score-incorrect');
+        
+        const questionArea = document.getElementById('question-area');
+        const resultArea = document.getElementById('result-area');
+        const feedbackIcon = document.getElementById('feedback-icon');
+        const feedbackText = document.getElementById('feedback-text');
+        const feedbackSubtext = document.getElementById('feedback-subtext');
+        const gameContainer = document.getElementById('game-container');
+        const historyList = document.getElementById('history-list');
+
+        function generateQuestion() {
+            currentNum1 = Math.floor(Math.random() * 12) + 1;
+            currentNum2 = Math.floor(Math.random() * 12) + 1;
+            currentAnswer = currentNum1 * currentNum2;
+
+            num1El.textContent = currentNum1;
+            num2El.textContent = currentNum2;
+            
+            inputEl.value = '';
+            showScreen('question');
+            
+            setTimeout(() => inputEl.focus(), 100);
+        }
+
+        function showScreen(screen) {
+            if (screen === 'question') {
+                questionArea.classList.remove('hidden');
+                resultArea.classList.add('hidden');
+                gameContainer.style.borderColor = '#1e293b';
+                document.body.style.backgroundColor = '#f0f4f8';
+            } else {
+                questionArea.classList.add('hidden');
+                resultArea.classList.remove('hidden');
+            }
+        }
+
+        function updateHistory(userAnswer, isCorrect) {
+            const entry = {
+                q: `${currentNum1} × ${currentNum2}`,
+                a: userAnswer,
+                correctA: currentAnswer,
+                correct: isCorrect
+            };
+            
+            history.unshift(entry); // Add to beginning of array
+            renderHistory();
+        }
+
+        function renderHistory() {
+            if (history.length === 0) return;
+            
+            historyList.innerHTML = history.map(item => `
+                <div class="flex items-center justify-between p-4 rounded-2xl border-l-8 ${item.correct ? 'bg-green-50 border-green-500' : 'bg-red-50 border-red-500'} shadow-sm">
+                    <div class="flex flex-col">
+                        <span class="text-xl bungee ${item.correct ? 'text-green-700' : 'text-red-700'}">${item.q}</span>
+                        <span class="text-sm font-black text-slate-500 uppercase tracking-tighter">Your Answer: ${item.a}</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        ${!item.correct ? `<span class="text-xs font-black bg-white px-2 py-1 rounded border border-red-200 text-red-500">CORRECT: ${item.correctA}</span>` : ''}
+                        <span class="text-3xl">${item.correct ? '✅' : '❌'}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function checkAnswer() {
+            const userReplyString = inputEl.value.trim();
+            if (userReplyString === "") return;
+            
+            const userReply = parseInt(userReplyString);
+            const isCorrect = userReply === currentAnswer;
+
+            if (isCorrect) {
+                correctCount++;
+                scoreCorrectEl.textContent = correctCount;
+                feedbackIcon.textContent = '🌟';
+                feedbackText.textContent = 'AWESOME!';
+                feedbackText.className = 'text-4xl bungee text-green-600';
+                feedbackSubtext.textContent = `${currentNum1} × ${currentNum2} = ${currentAnswer}`;
+                gameContainer.style.borderColor = '#22c55e';
+                document.body.style.backgroundColor = '#dcfce7';
+            } else {
+                incorrectCount++;
+                scoreIncorrectEl.textContent = incorrectCount;
+                feedbackIcon.textContent = '❌';
+                feedbackText.textContent = 'OOH, SO CLOSE!';
+                feedbackText.className = 'text-4xl bungee text-red-600';
+                feedbackSubtext.textContent = `The answer was ${currentAnswer}`;
+                gameContainer.style.borderColor = '#ef4444';
+                document.body.style.backgroundColor = '#fee2e2';
+            }
+
+            updateHistory(userReply, isCorrect);
+            showScreen('result');
+        }
+
+        submitBtn.addEventListener('click', checkAnswer);
+        
+        inputEl.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') checkAnswer();
+        });
+
+        nextBtn.addEventListener('click', generateQuestion);
+
+        window.onload = generateQuestion;
+    </script>
+</body>
+</html>
